@@ -1,11 +1,12 @@
 from api.scrapers.item import scrape_item_by_id
-from api import app
+from api import app, db
 
 from flask.json import loads
 
 import unittest
 
 app.config['TESTING'] = True
+db.create_all()
 
 
 class ScrapeItem(unittest.TestCase):

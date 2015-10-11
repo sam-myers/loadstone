@@ -9,7 +9,7 @@ before_script:
 - psql -c "CREATE DATABASE loadstone;" -U postgres
 script:
 - python manage.py migrate
-- coverage run unittest
+- coverage run -m unittest discover
 after_success:
 - coveralls
 cache:

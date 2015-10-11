@@ -35,3 +35,10 @@ class ScrapeItem(unittest.TestCase):
         with app.test_client() as client:
             response = client.post('/scrape/item/23fh032hf0oi1so3a012r1')
             self.assertEqual(response.status_code, 405)
+
+    def test_item_repr(self):
+        item = scrape_item_by_id('ec2ddbdcd47')
+        self.assertEqual(
+            '<Item lodestone_id=ec2ddbdcd47 name=Weathered Daystar Gloves type=Hands ilvl=100>',
+            repr(item)
+        )

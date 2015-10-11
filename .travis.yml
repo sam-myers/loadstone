@@ -1,0 +1,23 @@
+language:
+- python
+python:
+- '3.4.3'
+install:
+- pip install -r requirements.txt
+- pip install coveralls
+before_script:
+- psql -c "CREATE DATABASE loadstone;" -U postgres
+script:
+- python manage.py migrate
+- coverage run unittest
+after_success:
+- coveralls
+cache:
+  directories:
+  - $HOME/.cache/pip
+notifications:
+  email:
+    recipients:
+    - s.elahmadie@gmail.com
+    on_success: change
+    on_failure: always

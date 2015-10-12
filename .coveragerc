@@ -3,3 +3,4 @@ source = .
 
 [report]
 omit = api/runserver.py
+       setup.py

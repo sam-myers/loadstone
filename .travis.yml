@@ -3,12 +3,12 @@ language:
 python:
 - '3.4.3'
 install:
-- pip install -r requirements.txt
+- pip install -e .
 - pip install coveralls
 before_script:
 - psql -c "CREATE DATABASE loadstone;" -U postgres
 script:
-- coverage run -m unittest discover
+- coverage run -m py.test
 after_success:
 - coveralls
 cache:

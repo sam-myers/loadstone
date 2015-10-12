@@ -15,6 +15,7 @@ setup(
         'flask_sqlalchemy==2.0',
         'lxml==3.4.4',
         'psycopg2==2.6.1',
+        'pytest==2.8.2',
         'requests==2.7.0',
     ]
 )

@@ -3,7 +3,7 @@ language:
 python:
 - '3.4.3'
 install:
-- pip install -q -e
+- pip install -e /
 - pip install coveralls
 before_script:
 - psql -c "CREATE DATABASE loadstone;" -U postgres

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='LoadStone',
@@ -9,7 +9,7 @@ setup(
     author='Sami Elahmadie',
     author_email='s.elahmadie@gmail.com',
     url='https://github.com/Demotivated/loadstone/',
-    packages=['api'],
+    packages=find_packages(),
     install_requires=[
         'flask==0.10.1',
         'flask_sqlalchemy==2.0',

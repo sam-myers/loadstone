@@ -1,3 +1,4 @@
+../api
 flask
 flask_sqlalchemy
 lxml

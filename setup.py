@@ -16,8 +16,9 @@ setup(
         'lxml==3.4.4',
         'psycopg2==2.6.1',
         'pytest==2.8.2',
+        'pytest-cov==2.2.0',
         'pytest-flask==0.10.0',
         'pytest-xdist==1.13.1',
-        'requests==2.7.0',
+        'requests==2.8.0',
     ]
 )

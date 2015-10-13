@@ -1,2 +1,9 @@
 flask
 flask_sqlalchemy
+lxml
+psycopg2
+pytest
+pytest-flask
+requests
+sphinx
+sphinx-rtd-theme

@@ -2,5 +2,6 @@
 source = .
 
 [report]
-omit = api/runserver.py
-       setup.py
+omit = setup.py
+       api/runserver.py
+       docs/conf.py

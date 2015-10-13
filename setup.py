@@ -18,5 +18,7 @@ setup(
         'pytest==2.8.2',
         'pytest-flask==0.10.0',
         'requests==2.8.1',
+        'sphinx==1.3.1',
+        'sphinx-rtd-theme==0.1.9'
     ]
 )

@@ -8,7 +8,7 @@ class Item(db.Model):
     Generated and added to DB by :func:`scrapers.character.scrape_item_by_id`.
     """
 
-    lodestone_id = db.Column(db.String(20), primary_key=True, unique=True)
+    id = db.Column(db.String(20), primary_key=True, unique=True)
     """
     Unique for each item.
 
@@ -59,7 +59,7 @@ class Item(db.Model):
 
     def __repr__(self):
         return '<Item lodestone_id={} name={} type={} ilvl={}>'.format(
-            self.lodestone_id,
+            self.id,
             self.name,
             self.type,
             self.ilvl
@@ -69,7 +69,7 @@ class Item(db.Model):
     def as_dict(self):
         return {
             'name': self.name,
-            'id': self.lodestone_id,
+            'id': self.id,
             'type': self.type,
             'ilvl': self.ilvl
         }

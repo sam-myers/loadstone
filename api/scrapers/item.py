@@ -2,6 +2,7 @@ import requests
 from lxml import html
 
 from api.constants import USER_AGENT
+from api.exceptions import InvalidRequest
 from api import app, db
 from api.models.item import Item
 
@@ -25,13 +26,15 @@ def scrape_item_by_id(lodestone_id):
     headers = {'User-Agent': USER_AGENT}
     uri = 'http://na.finalfantasyxiv.com/lodestone/playguide/db/item/{}/'.format(lodestone_id)
     page = requests.get(uri, headers=headers)
+    if page.status_code == 404:
+        raise InvalidRequest('Lodestone ID does not exist')
     assert page.status_code == 200
 
     tree = html.fromstring(page.text)
     item = Item.query.get(lodestone_id)
 
     if not item:
-        item = Item(lodestone_id=lodestone_id)
+        item = Item(id=lodestone_id)
 
         item.name = tree.xpath('//title/text()')[0].split('|')[0].replace('Eorzea Database:', '').strip()
         header = tree.xpath('//div[@class="clearfix item_name_area"]/div[@class="box left"]/text()')
@@ -88,7 +91,7 @@ def scrape_item_by_id(lodestone_id):
             else:
                 app.logger.error('Unable to properly match the stat {}'.format(stat))
 
-            db.session.add(item)
+        db.session.add(item)
 
     return item
 

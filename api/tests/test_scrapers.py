@@ -7,6 +7,8 @@ def test_scrape_item_by_id():
     assert item.name == 'Thyrus Zenith'
     assert item.type == 'Two-handed Conjurer\'s Arm'
     assert item.ilvl == 90
+    assert item.mind == 31
+    assert item.spell_speed == 26
 
 
 def test_scrape_character_by_id():

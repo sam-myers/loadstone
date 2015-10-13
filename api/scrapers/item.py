@@ -37,15 +37,11 @@ def scrape_item_by_id(lodestone_id):
         item = Item(id=lodestone_id)
 
         item.name = tree.xpath('//title/text()')[0].split('|')[0].replace('Eorzea Database:', '').strip()
-        header = tree.xpath('//div[@class="clearfix item_name_area"]/div[@class="box left"]/text()')
-        item.type = header[2].strip()
+        item.type = tree.xpath('//div[@class="clearfix item_name_area"]/div[@class="box left"]/text()')[2].strip()
 
         ilvl = int(tree.xpath('//div[@class="eorzeadb_tooltip_pt3 eorzeadb_tooltip_pb3"]/text()')[0].
                    replace('Item Level ', ''))
-        if ilvl is not None:
-            item.ilvl = ilvl
-        else:
-            item.ilvl = 0
+        item.ilvl = ilvl if ilvl else 0
 
         main_stats = tree.xpath('//div[@class="clearfix sys_nq_element"]/div/strong/text()')
         if main_stats:
@@ -62,34 +58,11 @@ def scrape_item_by_id(lodestone_id):
 
         basic_stats = tree.xpath('//ul[@class="basic_bonus"]/li/text()')
         for stat_string in basic_stats:
-            stat_split = stat_string.split('+')
-            stat = stat_split[0].strip()
-            value = int(stat_split[1].strip())
-
-            # TODO add the remaining stats
-            if stat == 'Vitality':
-                item.vitality = value
-
-            elif stat == 'Mind':
-                item.mind = value
-
-            elif stat == 'Determination':
-                item.determination = value
-
-            elif stat == 'Spell Speed':
-                item.spell_speed = value
-
-            elif stat == 'Accuracy':
-                item.accuracy = value
-
-            elif stat == 'Critical Hit Rate':
-                item.critical_hit_rate = value
-
-            elif stat == 'Piety':
-                item.piety = value
-
-            else:
-                app.logger.error('Unable to properly match the stat {}'.format(stat))
+            setattr(
+                item,
+                stat_string.split('+')[0].strip().lower().replace(' ', '_'),  # Sanitized stat name, eg. 'vitality'
+                int(stat_string.split('+')[1].strip())                        # Its value
+            )
 
         db.session.add(item)
 

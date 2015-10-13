@@ -1,19 +1,23 @@
 def test_item_json(client):
     response = client.get('/scrape/item/cada9ec7074')
-    assert response.status_code == 200
 
+    assert response.status_code == 200
     assert response.json == {
-        "id": "cada9ec7074",
-        "ilvl": 110,
-        "name": "Arachne Robe",
-        "type": "Body"
+        'id': 'cada9ec7074',
+        'ilvl': 110,
+        'name': 'Arachne Robe',
+        'type': 'Body'
     }
 
 
-def test_invalid_lodestone_id(client):
-    response = client.post('/scrape/item/23fh032hf0oi1so3a012r1')
+def test_item_invalid_lodestone_id(client):
+    response = client.get('/scrape/item/23fh032hf0oi1so3a012r1')
 
-    assert response.status_code == 405
+    assert response.status_code == 403
+    assert response.json == {
+        'error': 'Invalid Request',
+        'message': 'Lodestone ID does not exist'
+    }
 
 
 def test_item_repr():

@@ -17,6 +17,6 @@ setup(
         'psycopg2==2.6.1',
         'pytest==2.8.2',
         'pytest-flask==0.10.0',
-        'requests==2.8.0',
+        'requests==2.8.1',
     ]
 )

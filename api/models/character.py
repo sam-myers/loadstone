@@ -1,4 +1,5 @@
 from api import db
+from api.models.job import Job
 
 
 class Character(db.Model):
@@ -22,6 +23,13 @@ class Character(db.Model):
     name = db.Column(db.String(100))
     """
     :type: String
+    """
+
+    jobs = db.relationship('Job', backref='character', lazy='dynamic')
+    """
+    List of known jobs which contains the stats / items associated with that job
+
+    See :class:`api.models.job.Job`
     """
 
     server = db.Column(db.String(100))

@@ -1,3 +1,19 @@
+def test_scrape_item_by_id(thyrus):
+    assert thyrus.id == 'd19447e548d'
+    assert thyrus.name == 'Thyrus Zenith'
+    assert thyrus.type == 'Two-handed Conjurer\'s Arm'
+    assert thyrus.ilvl == 90
+    assert thyrus.mind == 31
+    assert thyrus.spell_speed == 26
+
+
+def test_scrape_item_adds_to_database(thyrus):
+    from api.models.item import Item
+
+    t = Item.query.filter_by(name='Thyrus Zenith').first()
+    assert t.id == thyrus.id
+
+
 def test_item_json(client):
     response = client.get('/scrape/item/cada9ec7074')
 

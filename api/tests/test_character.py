@@ -1,3 +1,17 @@
+def test_scrape_character_by_id_basic_data(mina):
+    assert mina.id == '8774791'
+    assert mina.name == 'Mina Loriel'
+    assert mina.species == 'Miqo\'te'
+    assert mina.gender == 'Female'
+
+
+def test_scrape_character_adds_to_database(mina):
+    from api.models.character import Character
+
+    m = Character.query.filter_by(name='Mina Loriel').first()
+    assert m.id == mina.id
+
+
 def test_character_json(client):
     response = client.get('/scrape/character/8774791')
 

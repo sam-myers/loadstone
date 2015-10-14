@@ -2,9 +2,10 @@ import requests
 from lxml import html
 
 from api import app, db
-from api.constants import USER_AGENT
+from api.constants import USER_AGENT, JOB_IDS
 from api.exceptions import InvalidRequest
 from api.models.character import Character
+from api.models.job import Job
 
 
 def scrape_character_by_id(lodestone_id):
@@ -92,35 +93,37 @@ def scrape_character_by_id(lodestone_id):
 
     db.session.add(char)
 
-    return char
+    # Find current job
+    job_images = tree.xpath('//div[@id="class_info"]/div[@class="ic_class_wh24_box"]/img')
+    job_image_id = job_images[0].attrib['src'].split('?')[1]
+    job_id = JOB_IDS[job_image_id]
 
-    # # Find current job
-    # job_images = tree.xpath('//div[@id="class_info"]/div[@class="ic_class_wh24_box"]/img')
-    # job_image_id = job_images[0].attrib['src'].split('?')[1]
-    # job_id = JOB_IDS[job_image_id].name
-    #
+    job = Job.query.filter_by(character_id=lodestone_id, job=job_id).first()
+    if not job:
+        job = Job(character_id=lodestone_id, job=job_id)
+
     # job, _ = char.job_set.get_or_create(
     #     job=job_id
     # )
-    #
-    # # Populate stats
-    # job.hp, job.mp, job.tp = tree.xpath('//div[@id="param_power_area"]/ul/li/text()')
-    #
-    # job.strength, job.dexterity, job.vitality, job.intelligence, job.mind, job.piety = \
-    #     tree.xpath('//ul[@class="param_list_attributes"]/li/span/text()')
-    #
-    # job.fire, job.ice, job.wind, job.earth, job.lightning, job.water = \
-    #     tree.xpath('//ul[@class="param_list_elemental"]/li/span[@class="val"]/text()')
-    #
-    # job.accuracy, job.crit_rate, job.determination, \
-    #     job.defense, job.parry, job.magic_defense, \
-    #     job.attack_power, job.skill_speed, \
-    #     job.attack_magic_potency, job.healing_magic_potency, job.spell_speed, \
-    #     job.slow_resist, job.silence_resist, job.blind_resist, job.poison_resist, \
-    #     job.stun_resist, job.sleep_resist, job.bind_resist, job.heavy_resist, \
-    #     job.slashing_resist, job.piercing_resist, job.blunt_resist = \
-    #     tree.xpath('//ul[@class="param_list"]/li/span[@class="right"]/text()')
-    #
+
+    # Populate stats
+    job.hp, job.mp, job.tp = tree.xpath('//div[@id="param_power_area"]/ul/li/text()')
+
+    job.strength, job.dexterity, job.vitality, job.intelligence, job.mind, job.piety = \
+        tree.xpath('//ul[@class="param_list_attributes"]/li/span/text()')
+
+    job.fire, job.ice, job.wind, job.earth, job.lightning, job.water = \
+        tree.xpath('//ul[@class="param_list_elemental"]/li/span[@class="val"]/text()')
+
+    job.accuracy, job.crit_rate, job.determination, \
+        job.defense, job.parry, job.magic_defense, \
+        job.attack_power, job.skill_speed, \
+        job.attack_magic_potency, job.healing_magic_potency, job.spell_speed, \
+        job.slow_resist, job.silence_resist, job.blind_resist, job.poison_resist, \
+        job.stun_resist, job.sleep_resist, job.bind_resist, job.heavy_resist, \
+        job.slashing_resist, job.piercing_resist, job.blunt_resist = \
+        tree.xpath('//ul[@class="param_list"]/li/span[@class="right"]/text()')
+
     # # Populate items
     # html_item_list = tree.xpath('//div[@class="item_detail_box"]/div/div/div/div/a')
     # item_ids = []
@@ -138,5 +141,9 @@ def scrape_character_by_id(lodestone_id):
     #         item_threads.append(thread)
     # for thread in item_threads:
     #     job.items.add(thread.join())
-    #
-    # job.save()
+
+    # db.session.add(job)
+    char.jobs.append(job)
+    db.session.commit()
+
+    return char

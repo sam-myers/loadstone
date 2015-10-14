@@ -1,5 +1,4 @@
 from api import db
-from api.models.job import Job
 
 
 class Character(db.Model):

@@ -4,10 +4,6 @@ import pytest
 @pytest.fixture(scope='module')
 def app():
     from api import app, db
-    from api.models.job import Job
-    from api.models.character import Character
-    from api.models.item import Item
-
     app.config['TESTING'] = True
     db.create_all()
 
@@ -15,7 +11,7 @@ def app():
 
 
 @pytest.fixture(scope='module')
-def mina():
+def mina(app):
     from api.scrapers.character import scrape_character_by_id
     return scrape_character_by_id('8774791')
 

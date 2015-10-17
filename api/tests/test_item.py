@@ -22,7 +22,23 @@ def test_item_json(client):
         'id': 'cada9ec7074',
         'ilvl': 110,
         'name': 'Arachne Robe',
-        'type': 'Body'
+        'type': 'Body',
+        'stats': {
+            'accuracy': 8,
+            'auto_attack': 0,
+            'block_rate': 0,
+            'block_strength': 0,
+            'critical_hit_rate': 0,
+            'damage': 0,
+            'defense': 54,
+            'delay': 0,
+            'determination': 0,
+            'magic_defense': 92,
+            'mind': 39,
+            'piety': 31,
+            'spell_speed': 29,
+            'vitality': 41
+        }
     }
 
 

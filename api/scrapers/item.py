@@ -1,10 +1,12 @@
-import requests
-from lxml import html
-
 from api.constants import USER_AGENT
 from api.exceptions import InvalidRequest
 from api import app, db
 from api.models.item import Item
+
+import requests
+from lxml import html
+
+# import threading
 
 
 def scrape_item_by_id(lodestone_id):

@@ -6,6 +6,7 @@ from api.constants import USER_AGENT, JOB_IDS
 from api.exceptions import InvalidRequest
 from api.models.character import Character
 from api.models.job import Job
+from api.scrapers.item import scrape_item_by_id
 
 
 def scrape_character_by_id(lodestone_id):
@@ -124,13 +125,21 @@ def scrape_character_by_id(lodestone_id):
         job.slashing_resist, job.piercing_resist, job.blunt_resist = \
         tree.xpath('//ul[@class="param_list"]/li/span[@class="right"]/text()')
 
-    # # Populate items
-    # html_item_list = tree.xpath('//div[@class="item_detail_box"]/div/div/div/div/a')
-    # item_ids = []
-    # for item_id in html_item_list:
-    #     item_ids.append(item_id.attrib['href'].split('/')[5])
-    #
-    # # Grab items from database / grab in parallel
+    db.session.add(job)
+    char.jobs.append(job)
+    db.session.commit()
+
+    # Populate items
+    html_item_list = tree.xpath('//div[@class="item_detail_box"]/div/div/div/div/a')
+    item_ids = []
+    for item_id in html_item_list:
+        item_ids.append(item_id.attrib['href'].split('/')[5])
+
+    for item_id in item_ids:
+        item = scrape_item_by_id(item_id)
+        job.items.append(item)
+
+    # Grab items from database / grab in parallel
     # item_threads = []
     # for item_id in item_ids:
     #     try:
@@ -143,7 +152,7 @@ def scrape_character_by_id(lodestone_id):
     #     job.items.add(thread.join())
 
     # db.session.add(job)
-    char.jobs.append(job)
+    # char.jobs.append(job)
     db.session.commit()
 
     return char

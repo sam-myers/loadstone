@@ -157,10 +157,11 @@ class Job(db.Model):
 
         :return: Dictionary of the the class' values for easier JSON serialization
         """
-        items = list(map(lambda x: x.as_dict, list(self.items.all()))) if len(self.items.all()) > 0 else []
+        # items = list(map(lambda x: x.as_dict, list(self.items.all()))) if len(self.items.all()) > 0 else []
+        items = list(map(lambda s: s.as_dict, self.items))
 
         return {
-            'job': JOBS[self.job],
+            'job': self.job.value,
             'level': self.level,
             'items': items,
             'stats': {

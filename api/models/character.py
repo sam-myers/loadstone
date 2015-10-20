@@ -108,7 +108,7 @@ class Character(db.Model):
 
         :rtype: Dictionary
         """
-        # jobs = list(map(lambda x: x.as_dict, list(self.job_set.all()))) if len(self.job_set.all()) > 0 else []
+        jobs = list(map(lambda j: j.as_dict, self.jobs))
 
         return {
             'name': self.name,
@@ -125,5 +125,5 @@ class Character(db.Model):
                 'name': self.grand_company_name,
                 'rank': self.grand_company_rank
             },
-            # 'jobs': jobs,
+            'jobs': jobs,
         }

@@ -52,6 +52,16 @@ def test_item_invalid_lodestone_id(client):
     }
 
 
+def test_character_illegal_lodestone_id(client):
+    response = client.get('/scrape/item/123abc!')
+
+    assert response.status_code == 403
+    assert response.json == {
+        'error': 'Invalid Request',
+        'message': 'Illegal characters in requested ID'
+    }
+
+
 def test_item_repr():
     from api.scrapers.item import scrape_item_by_id
 

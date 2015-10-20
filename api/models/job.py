@@ -4,11 +4,11 @@ from api.constants import JOBS
 from sqlalchemy_utils import ChoiceType
 
 
-# items = db.Table(
-#     'items',
-#     db.Column('item_id', db.Integer, db.ForeignKey('item.id')),
-#     db.Column('job_id', db.Integer, db.ForeignKey('job.id'))
-# )
+items = db.Table(
+    'items',
+    db.Column('item_id', db.String(20), db.ForeignKey('item.id')),
+    db.Column('job_id', db.Integer, db.ForeignKey('job.id'))
+)
 
 
 class Job(db.Model):
@@ -25,7 +25,7 @@ class Job(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     character_id = db.Column(db.String(100), db.ForeignKey('character.id'))
     job = db.Column(ChoiceType(JOBS))
-    # items = db.relationship('Item', secondary=items, backref=db.backref('jobs', lazy='dynamic'))
+    items = db.relationship('Item', secondary=items, backref=db.backref('jobs', lazy='select'))
 
     hp = db.Column(db.Integer)
     mp = db.Column(db.Integer)

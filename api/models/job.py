@@ -74,81 +74,54 @@ class Job(db.Model):
     blunt_resist = db.Column(db.Integer)
 
     @property
+    def level_dict(self):
+        return {
+            JOBS.MARAUDER: self.character.lvl_marauder,
+            JOBS.GLADIATOR: self.character.lvl_gladiator,
+            JOBS.PUGILIST: self.character.lvl_pugilist,
+            JOBS.LANCER: self.character.lvl_lancer,
+            JOBS.ARCHER: self.character.lvl_archer,
+            JOBS.ROGUE: self.character.lvl_rogue,
+            JOBS.CONJURER: self.character.lvl_conjurer,
+            JOBS.THAUMATURGE: self.character.lvl_thaumaturge,
+            JOBS.ARCANIST: self.character.lvl_arcanist,
+
+            JOBS.CARPENTER: self.character.lvl_carpenter,
+            JOBS.BLACKSMITH: self.character.lvl_blacksmith,
+            JOBS.ARMORER: self.character.lvl_armorer,
+            JOBS.GOLDSMITH: self.character.lvl_goldsmith,
+            JOBS.LEATHERWORKER: self.character.lvl_leatherworker,
+            JOBS.WEAVER: self.character.lvl_weaver,
+            JOBS.ALCHEMIST: self.character.lvl_alchemist,
+            JOBS.CULINARIAN: self.character.lvl_culinarian,
+            JOBS.BOTANIST: self.character.lvl_botanist,
+            JOBS.FISHER: self.character.lvl_fisher,
+            JOBS.MINER: self.character.lvl_miner,
+
+            JOBS.WARRIOR: self.character.lvl_marauder,
+            JOBS.PALADIN: self.character.lvl_gladiator,
+            JOBS.MONK: self.character.lvl_pugilist,
+            JOBS.DRAGOON: self.character.lvl_lancer,
+            JOBS.BARD: self.character.lvl_archer,
+            JOBS.WHITEMAGE: self.character.lvl_conjurer,
+            JOBS.BLACKMAGE: self.character.lvl_thaumaturge,
+            JOBS.SUMMONER: self.character.lvl_arcanist,
+            JOBS.SCHOLAR: self.character.lvl_arcanist,
+            JOBS.NINJA: self.character.lvl_rogue,
+
+            JOBS.DARKNIGHT: self.character.lvl_darknight,
+            JOBS.ASTROLOGIAN: self.character.lvl_astrologian,
+            JOBS.MACHINIST: self.character.lvl_machinist
+        }
+
+    @property
     def level(self):
         """
 
 
         :return: The job's level derived from the character's class levels
         """
-        if self.job == JOBS.MARAUDER:
-            return self.character.lvl_marauder
-        elif self.job == JOBS.GLADIATOR:
-            return self.character.lvl_gladiator
-        elif self.job == JOBS.PUGILIST:
-            return self.character.lvl_pugilist
-        elif self.job == JOBS.LANCER:
-            return self.character.lvl_lancer
-        elif self.job == JOBS.ARCHER:
-            return self.character.lvl_archer
-        elif self.job == JOBS.ROGUE:
-            return self.character.lvl_rogue
-        elif self.job == JOBS.CONJURER:
-            return self.character.lvl_conjurer
-        elif self.job == JOBS.THAUMATURGE:
-            return self.character.lvl_thaumaturge
-        elif self.job == JOBS.ARCANIST:
-            return self.character.lvl_arcanist
-
-        elif self.job == JOBS.CARPENTER:
-            return self.character.lvl_carpenter
-        elif self.job == JOBS.BLACKSMITH:
-            return self.character.lvl_blacksmith
-        elif self.job == JOBS.ARMORER:
-            return self.character.lvl_armorer
-        elif self.job == JOBS.GOLDSMITH:
-            return self.character.lvl_goldsmith
-        elif self.job == JOBS.LEATHERWORKER:
-            return self.character.lvl_leatherworker
-        elif self.job == JOBS.WEAVER:
-            return self.character.lvl_weaver
-        elif self.job == JOBS.ALCHEMIST:
-            return self.character.lvl_alchemist
-        elif self.job == JOBS.CULINARIAN:
-            return self.character.lvl_culinarian
-        elif self.job == JOBS.BOTANIST:
-            return self.character.lvl_botanist
-        elif self.job == JOBS.FISHER:
-            return self.character.lvl_fisher
-        elif self.job == JOBS.MINER:
-            return self.character.lvl_miner
-
-        elif self.job == JOBS.WARRIOR:
-            return self.character.lvl_marauder
-        elif self.job == JOBS.PALADIN:
-            return self.character.lvl_gladiator
-        elif self.job == JOBS.MONK:
-            return self.character.lvl_pugilist
-        elif self.job == JOBS.DRAGOON:
-            return self.character.lvl_lancer
-        elif self.job == JOBS.BARD:
-            return self.character.lvl_archer
-        elif self.job == JOBS.WHITEMAGE:
-            return self.character.lvl_conjurer
-        elif self.job == JOBS.BLACKMAGE:
-            return self.character.lvl_thaumaturge
-        elif self.job == JOBS.SUMMONER:
-            return self.character.lvl_arcanist
-        elif self.job == JOBS.SCHOLAR:
-            return self.character.lvl_arcanist
-        elif self.job == JOBS.NINJA:
-            return self.character.lvl_rogue
-
-        elif self.job == JOBS.DARKNIGHT:
-            return self.character.lvl_darknight
-        elif self.job == JOBS.ASTROLOGIAN:
-            return self.character.lvl_astrologian
-        elif self.job == JOBS.MACHINIST:
-            return self.character.lvl_machinist
+        return self.level_dict[self.job]
 
     @property
     def as_dict(self):
@@ -157,13 +130,12 @@ class Job(db.Model):
 
         :return: Dictionary of the the class' values for easier JSON serialization
         """
-        # items = list(map(lambda x: x.as_dict, list(self.items.all()))) if len(self.items.all()) > 0 else []
-        items = list(map(lambda s: s.as_dict, self.items))
+        item_list = list(map(lambda s: s.as_dict, self.items))
 
         return {
             'job': self.job.value,
             'level': self.level,
-            'items': items,
+            'items': item_list,
             'stats': {
                 'hp': self.hp,
                 'mp': self.mp,

@@ -7,7 +7,7 @@ from api.scrapers.item import scrape_item_by_id
 from api.scrapers.free_company import scrape_free_company_by_id
 
 
-from asyncio import get_event_loop, wait
+from asyncio import get_event_loop, set_event_loop, new_event_loop, wait
 from requests import get
 from lxml import html
 
@@ -137,7 +137,13 @@ def scrape_character_by_id(lodestone_id):
     async def scrape_item(item_id):
         job.items.append(scrape_item_by_id(item_id))
 
-    get_event_loop().run_until_complete(wait([
+    try:
+        loop = get_event_loop()
+    except RuntimeError:
+        loop = new_event_loop()
+        set_event_loop(loop)
+
+    loop.run_until_complete(wait([
         scrape_item(item_id) for item_id in item_ids
     ]))
 

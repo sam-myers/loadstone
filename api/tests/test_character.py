@@ -49,8 +49,5 @@ def test_character_illegal_lodestone_id(client):
     }
 
 
-def test_character_repr():
-    from api.scrapers.character import scrape_character_by_id
-
-    item = scrape_character_by_id('4746459')
-    assert repr(item) == '<Character name=Zael Strife id=4746459>'
+def test_character_repr(mina):
+    assert repr(mina) == '<Character name=Mina Loriel id=8774791>'

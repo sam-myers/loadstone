@@ -31,7 +31,7 @@ def test_free_company_json(client):
 
 
 def test_character_illegal_lodestone_id(client):
-    response = client.get('/scrape/item/123abc!')
+    response = client.get('/scrape/free_company/123abc456def')
 
     assert response.status_code == 403
     assert response.json == {

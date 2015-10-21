@@ -1,13 +1,14 @@
-import asyncio
-import requests
-from lxml import html
-
 from api import app, db
 from api.constants import USER_AGENT, JOB_IDS
 from api.exceptions import InvalidRequest
 from api.models.character import Character
 from api.models.job import Job
 from api.scrapers.item import scrape_item_by_id
+
+
+from asyncio import get_event_loop, wait
+from requests import get
+from lxml import html
 
 
 def scrape_character_by_id(lodestone_id):
@@ -26,7 +27,7 @@ def scrape_character_by_id(lodestone_id):
 
     headers = {'User-Agent': USER_AGENT}
     uri = 'http://na.finalfantasyxiv.com/lodestone/character/{}/'.format(lodestone_id)
-    page = requests.get(uri, headers=headers)
+    page = get(uri, headers=headers)
     if page.status_code == 404:
         raise InvalidRequest('Lodestone ID does not exist')
     assert page.status_code == 200
@@ -128,22 +129,14 @@ def scrape_character_by_id(lodestone_id):
 
     # Populate items
     html_item_list = tree.xpath('//div[@class="item_detail_box"]/div/div/div/div/a')
-    item_ids = []
-    for item_id in html_item_list:
-        item_ids.append(item_id.attrib['href'].split('/')[5])
+    item_ids = map(lambda x: x.attrib['href'].split('/')[5], html_item_list)
 
-    @asyncio.coroutine
-    def scrape_item(item_id):
-        yield from scrape_item_by_id(item_id)
+    async def scrape_item(item_id):
+        job.items.append(scrape_item_by_id(item_id))
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.wait([
+    get_event_loop().run_until_complete(wait([
         scrape_item(item_id) for item_id in item_ids
     ]))
-
-    for item_id in item_ids:
-        item = scrape_item_by_id(item_id)
-        job.items.append(item)
 
     db.session.commit()
 

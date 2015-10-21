@@ -27,11 +27,7 @@ def get_item(lodestone_id):
     if not re.match(r'^[0-9a-z]+$', lodestone_id):
         raise InvalidRequest('Illegal characters in requested ID')
 
-    # Items don't change, if already in DB no need to scrape
-    item = Item.query.get(lodestone_id)
-    if not item:
-        item = scrape_item_by_id(lodestone_id)
-    return item
+    return scrape_item_by_id(lodestone_id)
 
 
 @app.route('/scrape/character/<string:lodestone_id>')

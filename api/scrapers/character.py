@@ -1,3 +1,4 @@
+import asyncio
 import requests
 from lxml import html
 
@@ -103,10 +104,6 @@ def scrape_character_by_id(lodestone_id):
     if not job:
         job = Job(character_id=lodestone_id, job=job_id)
 
-    # job, _ = char.job_set.get_or_create(
-    #     job=job_id
-    # )
-
     # Populate stats
     job.hp, job.mp, job.tp = tree.xpath('//div[@id="param_power_area"]/ul/li/text()')
 
@@ -135,24 +132,19 @@ def scrape_character_by_id(lodestone_id):
     for item_id in html_item_list:
         item_ids.append(item_id.attrib['href'].split('/')[5])
 
+    @asyncio.coroutine
+    def scrape_item(item_id):
+        yield from scrape_item_by_id(item_id)
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.wait([
+        scrape_item(item_id) for item_id in item_ids
+    ]))
+
     for item_id in item_ids:
         item = scrape_item_by_id(item_id)
         job.items.append(item)
 
-    # Grab items from database / grab in parallel
-    # item_threads = []
-    # for item_id in item_ids:
-    #     try:
-    #         job.items.add(Item.objects.get(lodestone_id=item_id))
-    #     except ObjectDoesNotExist:
-    #         thread = ItemThread(item_id)
-    #         thread.start()
-    #         item_threads.append(thread)
-    # for thread in item_threads:
-    #     job.items.add(thread.join())
-
-    # db.session.add(job)
-    # char.jobs.append(job)
     db.session.commit()
 
     return char

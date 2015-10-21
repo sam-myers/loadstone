@@ -56,7 +56,7 @@ class Character(db.Model):
     :type: String
     """
 
-    free_company_id = db.Column(db.String(100))
+    free_company_id = db.Column(db.String(100), db.ForeignKey('free_company.id'))
     """
     :type: String
     """

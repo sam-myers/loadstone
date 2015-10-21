@@ -4,6 +4,7 @@ from api.exceptions import InvalidRequest
 from api.models.character import Character
 from api.models.job import Job
 from api.scrapers.item import scrape_item_by_id
+from api.scrapers.free_company import scrape_free_company_by_id
 
 
 from asyncio import get_event_loop, wait
@@ -44,6 +45,8 @@ def scrape_character_by_id(lodestone_id):
     char.free_company_id = \
         tree.xpath('//dd[@class="txt_name"]/a[contains(@href, "")]')[0].attrib['href'].split('/')[3]
     char.server = tree.xpath('//h2//span/text()')[0].strip()[1:-1]
+
+    scrape_free_company_by_id(char.free_company_id)
 
     info = tree.xpath('//dd[@class="txt_name"]/text()')
     _, _, char.city_state, grand_company = info

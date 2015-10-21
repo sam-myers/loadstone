@@ -39,23 +39,43 @@ class Item(db.Model):
     :type: Int
     """
 
-    damage = db.Column(db.Integer)
-    auto_attack = db.Column(db.Float)
-    delay = db.Column(db.Integer)
+    damage = db.Column(db.Integer, default=0)
+    auto_attack = db.Column(db.Float, default=0.0)
+    delay = db.Column(db.Integer, default=0)
 
-    defense = db.Column(db.Integer)
-    magic_defense = db.Column(db.Integer)
+    defense = db.Column(db.Integer, default=0)
+    magic_defense = db.Column(db.Integer, default=0)
 
-    block_strength = db.Column(db.Integer)
-    block_rate = db.Column(db.Integer)
+    block_strength = db.Column(db.Integer, default=0)
+    block_rate = db.Column(db.Integer, default=0)
 
-    vitality = db.Column(db.Integer)
-    mind = db.Column(db.Integer)
-    determination = db.Column(db.Integer)
-    spell_speed = db.Column(db.Integer)
-    accuracy = db.Column(db.Integer)
-    critical_hit_rate = db.Column(db.Integer)
-    piety = db.Column(db.Integer)
+    vitality = db.Column(db.Integer, default=0)
+    mind = db.Column(db.Integer, default=0)
+    determination = db.Column(db.Integer, default=0)
+    spell_speed = db.Column(db.Integer, default=0)
+    accuracy = db.Column(db.Integer, default=0)
+    critical_hit_rate = db.Column(db.Integer, default=0)
+    piety = db.Column(db.Integer, default=0)
+
+    def __init__(self, *args, **kwargs):
+        super(Item, self).__init__(*args, **kwargs)
+        self.damage = 0
+        self.auto_attack = 0
+        self.delay = 0
+
+        self.defense = 0
+        self.magic_defense = 0
+
+        self.block_strength = 0
+        self.block_rate = 0
+
+        self.vitality = 0
+        self.mind = 0
+        self.determination = 0
+        self.spell_speed = 0
+        self.accuracy = 0
+        self.critical_hit_rate = 0
+        self.piety = 0
 
     def __repr__(self):
         return '<Item lodestone_id={} name={} type={} ilvl={}>'.format(
@@ -71,5 +91,30 @@ class Item(db.Model):
             'name': self.name,
             'id': self.id,
             'type': self.type,
-            'ilvl': self.ilvl
+            'ilvl': self.ilvl,
+            'stats': {
+                'damage': self.damage,
+                'auto_attack': self.auto_attack,
+                'delay': self.delay,
+
+                'defense': self.defense,
+                'magic_defense': self.magic_defense,
+
+                'block_rate': self.block_rate,
+                'block_strength': self.block_strength,
+
+                'vitality': self.vitality,
+                'mind': self.mind,
+                'determination': self.determination,
+                'spell_speed': self.spell_speed,
+                'accuracy': self.accuracy,
+                'critical_hit_rate': self.critical_hit_rate,
+                'piety': self.piety
+            }
         }
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        raise StopIteration

@@ -20,5 +20,6 @@ setup(
         'requests==2.8.1',
         'sphinx==1.3.1',
         'sphinx-rtd-theme==0.1.9',
+        'sqlalchemy-utils==0.31.0'
     ]
 )

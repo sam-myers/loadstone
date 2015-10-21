@@ -1,10 +1,10 @@
-import requests
-from lxml import html
-
 from api.constants import USER_AGENT
 from api.exceptions import InvalidRequest
 from api import app, db
 from api.models.item import Item
+
+import requests
+from lxml import html
 
 
 def scrape_item_by_id(lodestone_id):
@@ -21,19 +21,19 @@ def scrape_item_by_id(lodestone_id):
     :return: New / updated :class:`api.models.Item`
     :raise ParsingException: Unexpected errors while scraping the HTML will throw
     """
-    app.logger.debug('Attempting to parse items from id {}'.format(lodestone_id))
-
-    headers = {'User-Agent': USER_AGENT}
-    uri = 'http://na.finalfantasyxiv.com/lodestone/playguide/db/item/{}/'.format(lodestone_id)
-    page = requests.get(uri, headers=headers)
-    if page.status_code == 404:
-        raise InvalidRequest('Lodestone ID does not exist')
-    assert page.status_code == 200
-
-    tree = html.fromstring(page.text)
     item = Item.query.get(lodestone_id)
-
     if not item:
+
+        app.logger.debug('Attempting to parse items from id {}'.format(lodestone_id))
+
+        headers = {'User-Agent': USER_AGENT}
+        uri = 'http://na.finalfantasyxiv.com/lodestone/playguide/db/item/{}/'.format(lodestone_id)
+        page = requests.get(uri, headers=headers)
+        if page.status_code == 404:
+            raise InvalidRequest('Lodestone ID does not exist')
+        assert page.status_code == 200
+
+        tree = html.fromstring(page.text)
         item = Item(id=lodestone_id)
 
         item.name = tree.xpath('//title/text()')[0].split('|')[0].replace('Eorzea Database:', '').strip()
@@ -67,22 +67,3 @@ def scrape_item_by_id(lodestone_id):
         db.session.add(item)
 
     return item
-
-# class ItemThread(threading.Thread):
-#
-#     def __init__(self, item_id):
-#         threading.Thread.__init__(self)
-#         self.item_id = item_id
-#         self._item = None
-#
-#     def run(self):
-#         self._item = scrape_item_by_id(self.item_id)
-#
-#     def join(self, timeout=None):
-#         threading.Thread.join(self)
-#         return self._item
-#
-#     def __repr__(self):
-#         return '<ItemThread item={}>'.format(
-#             self._item.__repr__()
-#         )

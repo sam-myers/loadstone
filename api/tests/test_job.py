@@ -1,3 +1,14 @@
+import pytest
+
+from api.tests.test_character import mina
+
+
+@pytest.fixture
+def mina_whm(mina):
+    from api.constants import JOBS
+    return mina.jobs.filter_by(job=JOBS.WHITEMAGE).first()
+
+
 def test_scrape_character_job_data(mina_whm):
     assert mina_whm.level == 50
     assert mina_whm.piety == 376

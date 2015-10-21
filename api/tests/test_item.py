@@ -1,3 +1,12 @@
+import pytest
+
+
+@pytest.fixture
+def thyrus():
+    from api.scrapers.item import scrape_item_by_id
+    return scrape_item_by_id('d19447e548d')
+
+
 def test_scrape_item_by_id(thyrus):
     assert thyrus.id == 'd19447e548d'
     assert thyrus.name == 'Thyrus Zenith'

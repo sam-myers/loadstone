@@ -102,7 +102,7 @@ def scrape_character_basics(char, html):
 def scrape_character_free_company(char, html):
     char.free_company_id = \
         html.xpath('//dd[@class="txt_name"]/a[contains(@href, "")]')[0].attrib['href'].split('/')[3]
-    scrape_free_company(char.free_company_id)
+    scrape_free_company(char.free_company_id, basics_only=True)
 
 
 def scrape_character_job(char, tree):
@@ -140,7 +140,7 @@ def scrape_character_items(job, html):
     html_item_list = html.xpath('//div[@class="item_detail_box"]/div/div/div/div/a')
     item_ids = map(lambda x: x.attrib['href'].split('/')[5], html_item_list)
 
-    async def scrape_item(item_id):
+    async def scrape_item_async(item_id):
         job.items.append(scrape_item(item_id))
 
     try:
@@ -150,5 +150,5 @@ def scrape_character_items(job, html):
         set_event_loop(loop)
 
     loop.run_until_complete(wait([
-        scrape_item(item_id) for item_id in item_ids
+        scrape_item_async(item_id) for item_id in item_ids
     ]))

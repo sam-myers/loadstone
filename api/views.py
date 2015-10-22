@@ -1,6 +1,6 @@
 from api import app
 from api.scrapers.item import scrape_item_by_id
-from api.scrapers.character import scrape_character_by_id
+from api.scrapers.character import scrape_character
 from api.scrapers.free_company import scrape_free_company_by_id
 from api.exceptions import InvalidRequest
 
@@ -36,7 +36,7 @@ def get_character(lodestone_id):
     if not re.match(r'^[0-9]+$', lodestone_id):
         raise InvalidRequest('Illegal characters in requested ID')
 
-    return scrape_character_by_id(lodestone_id)
+    return scrape_character(lodestone_id)
 
 
 @app.route('/scrape/free_company/<string:lodestone_id>')

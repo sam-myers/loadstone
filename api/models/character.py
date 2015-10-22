@@ -5,7 +5,7 @@ class Character(db.Model):
     """
     A character's non-job-specific info
 
-    Generated and added to DB by :func:`api.scrapers.character.scrape_character_by_id`.
+    Generated and added to DB by :func:`api.scrapers.character.scrape_character`.
     """
 
     id = db.Column(db.String(100), primary_key=True, unique=True)

@@ -1,10 +1,6 @@
-from api.constants import USER_AGENT
-from api.exceptions import InvalidRequest
-from api import app, db
+from api import db
 from api.models.item import Item
-
-import requests
-from lxml import html
+from api.scrapers.context_managers import HTMLFromLoadstone
 
 
 def scrape_item_by_id(lodestone_id):
@@ -24,46 +20,39 @@ def scrape_item_by_id(lodestone_id):
     item = Item.query.get(lodestone_id)
     if not item:
 
-        app.logger.debug('Attempting to parse items from id {}'.format(lodestone_id))
+        url = 'http://na.finalfantasyxiv.com/lodestone/playguide/db/item/{}/'.format(lodestone_id)
+        with HTMLFromLoadstone(url) as html:
 
-        headers = {'User-Agent': USER_AGENT}
-        uri = 'http://na.finalfantasyxiv.com/lodestone/playguide/db/item/{}/'.format(lodestone_id)
-        page = requests.get(uri, headers=headers)
-        if page.status_code == 404:
-            raise InvalidRequest('Lodestone ID does not exist')
-        assert page.status_code == 200
+            item = Item(id=lodestone_id)
 
-        tree = html.fromstring(page.text)
-        item = Item(id=lodestone_id)
+            item.name = html.xpath('//title/text()')[0].split('|')[0].replace('Eorzea Database:', '').strip()
+            item.type = html.xpath('//div[@class="clearfix item_name_area"]/div[@class="box left"]/text()')[2].strip()
 
-        item.name = tree.xpath('//title/text()')[0].split('|')[0].replace('Eorzea Database:', '').strip()
-        item.type = tree.xpath('//div[@class="clearfix item_name_area"]/div[@class="box left"]/text()')[2].strip()
+            ilvl = int(html.xpath('//div[@class="eorzeadb_tooltip_pt3 eorzeadb_tooltip_pb3"]/text()')[0].
+                       replace('Item Level ', ''))
+            item.ilvl = ilvl if ilvl else 0
 
-        ilvl = int(tree.xpath('//div[@class="eorzeadb_tooltip_pt3 eorzeadb_tooltip_pb3"]/text()')[0].
-                   replace('Item Level ', ''))
-        item.ilvl = ilvl if ilvl else 0
+            main_stats = html.xpath('//div[@class="clearfix sys_nq_element"]/div/strong/text()')
+            if main_stats:
+                if item.type == "Shield":
+                    item.block_strength = int(main_stats[0])
+                    item.block_rate = int(main_stats[1])
+                elif len(main_stats) == 2:
+                    item.defense = int(main_stats[0])
+                    item.magic_defense = int(main_stats[1])
+                else:
+                    item.damage = int(main_stats[0])
+                    item.auto_attack = float(main_stats[1])
+                    item.delay = float(main_stats[2])
 
-        main_stats = tree.xpath('//div[@class="clearfix sys_nq_element"]/div/strong/text()')
-        if main_stats:
-            if item.type == "Shield":
-                item.block_strength = int(main_stats[0])
-                item.block_rate = int(main_stats[1])
-            elif len(main_stats) == 2:
-                item.defense = int(main_stats[0])
-                item.magic_defense = int(main_stats[1])
-            else:
-                item.damage = int(main_stats[0])
-                item.auto_attack = float(main_stats[1])
-                item.delay = float(main_stats[2])
+            basic_stats = html.xpath('//ul[@class="basic_bonus"]/li/text()')
+            for stat_string in basic_stats:
+                setattr(
+                    item,
+                    stat_string.split('+')[0].strip().lower().replace(' ', '_'),  # Sanitized stat name, eg. 'vitality'
+                    int(stat_string.split('+')[1].strip())                        # Its value
+                )
 
-        basic_stats = tree.xpath('//ul[@class="basic_bonus"]/li/text()')
-        for stat_string in basic_stats:
-            setattr(
-                item,
-                stat_string.split('+')[0].strip().lower().replace(' ', '_'),  # Sanitized stat name, eg. 'vitality'
-                int(stat_string.split('+')[1].strip())                        # Its value
-            )
-
-        db.session.add(item)
+            db.session.add(item)
 
     return item

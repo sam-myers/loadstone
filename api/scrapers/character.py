@@ -1,22 +1,20 @@
-from api import app, db
-from api.constants import USER_AGENT, JOB_IDS
-from api.exceptions import InvalidRequest
+from api import db
+from api.constants import JOB_IDS
 from api.models.character import Character
 from api.models.job import Job
+from api.scrapers.context_managers import HTMLFromLoadstone
 from api.scrapers.item import scrape_item_by_id
 from api.scrapers.free_company import scrape_free_company_by_id
 
 
 from asyncio import get_event_loop, set_event_loop, new_event_loop, wait
-from requests import get
-from lxml import html
 
 
-def scrape_character_by_id(lodestone_id):
+def scrape_character(lodestone_id):
     """
     .. image:: ../images/character_lodestone_id.PNG
 
-    >>> mina = scrape_character_by_id('8774791')
+    >>> mina = scrape_character('8774791')
     >>> mina.free_company_name
     'Zanarkand'
 
@@ -24,40 +22,41 @@ def scrape_character_by_id(lodestone_id):
     :return: New / updated :class:`api.models.Character`
     :raise InvalidRequest: Character of given ID cannot be found
     """
-    app.logger.debug('Attempting to parse character id {}'.format(lodestone_id))
+    url = 'http://na.finalfantasyxiv.com/lodestone/character/{}/'.format(lodestone_id)
+    with HTMLFromLoadstone(url) as html:
 
-    headers = {'User-Agent': USER_AGENT}
-    uri = 'http://na.finalfantasyxiv.com/lodestone/character/{}/'.format(lodestone_id)
-    page = get(uri, headers=headers)
-    if page.status_code == 404:
-        raise InvalidRequest('Lodestone ID does not exist')
-    assert page.status_code == 200
+        char = Character.query.get(lodestone_id)
+        if not char:
+            char = Character(id=lodestone_id)
 
-    # Populate Character
-    char = Character.query.get(lodestone_id)
-    if not char:
-        char = Character(id=lodestone_id)
+        scrape_character_basics(char, html)
+        scrape_character_free_company(char, html)
+        db.session.add(char)
 
-    tree = html.fromstring(page.text)
+        job = scrape_character_job(char, html)
+        char.jobs.append(job)
 
-    char.name = tree.xpath('//title/text()')[0].split('|')[0].strip()
-    char.free_company_name = tree.xpath('//dd[@class="txt_name"]/a[contains(@href, "")]/text()')[0]
-    char.free_company_id = \
-        tree.xpath('//dd[@class="txt_name"]/a[contains(@href, "")]')[0].attrib['href'].split('/')[3]
-    char.server = tree.xpath('//h2//span/text()')[0].strip()[1:-1]
+        scrape_character_items(job, html)
+        db.session.commit()
 
-    scrape_free_company_by_id(char.free_company_id)
+    return char
 
-    info = tree.xpath('//dd[@class="txt_name"]/text()')
+
+def scrape_character_basics(char, html):
+    char.name = html.xpath('//title/text()')[0].split('|')[0].strip()
+    char.free_company_name = html.xpath('//dd[@class="txt_name"]/a[contains(@href, "")]/text()')[0]
+    char.server = html.xpath('//h2//span/text()')[0].strip()[1:-1]
+
+    info = html.xpath('//dd[@class="txt_name"]/text()')
     _, _, char.city_state, grand_company = info
     char.grand_company_name, char.grand_company_rank = grand_company.split('/')
 
-    info = tree.xpath('//div[@class="chara_profile_title"]')
+    info = html.xpath('//div[@class="chara_profile_title"]')
     species, _, gender = info[0].text.split('/')
     char.species = species.strip()
     char.gender = 'Female' if ord(gender.strip()) == 9792 else 'Male'
 
-    class_list_from_html = tree.xpath('//td/text()')
+    class_list_from_html = html.xpath('//td/text()')
 
     def level_from_index(index):
         level = class_list_from_html[index*3+1]
@@ -97,16 +96,23 @@ def scrape_character_by_id(lodestone_id):
     char.lvl_botanist = level_from_index(21)
     char.lvl_fisher = level_from_index(22)
 
-    db.session.add(char)
+    return char
 
-    # Find current job
+
+def scrape_character_free_company(char, html):
+    char.free_company_id = \
+        html.xpath('//dd[@class="txt_name"]/a[contains(@href, "")]')[0].attrib['href'].split('/')[3]
+    scrape_free_company_by_id(char.free_company_id)
+
+
+def scrape_character_job(char, tree):
     job_images = tree.xpath('//div[@id="class_info"]/div[@class="ic_class_wh24_box"]/img')
     job_image_id = job_images[0].attrib['src'].split('?')[1]
     job_id = JOB_IDS[job_image_id]
 
-    job = Job.query.filter_by(character_id=lodestone_id, job=job_id).first()
+    job = Job.query.filter_by(character_id=char.id, job=job_id).first()
     if not job:
-        job = Job(character_id=lodestone_id, job=job_id)
+        job = Job(character_id=char.id, job=job_id)
 
     # Populate stats
     job.hp, job.mp, job.tp = tree.xpath('//div[@id="param_power_area"]/ul/li/text()')
@@ -127,11 +133,11 @@ def scrape_character_by_id(lodestone_id):
         tree.xpath('//ul[@class="param_list"]/li/span[@class="right"]/text()')
 
     db.session.add(job)
-    char.jobs.append(job)
-    db.session.commit()
+    return job
 
-    # Populate items
-    html_item_list = tree.xpath('//div[@class="item_detail_box"]/div/div/div/div/a')
+
+def scrape_character_items(job, html):
+    html_item_list = html.xpath('//div[@class="item_detail_box"]/div/div/div/div/a')
     item_ids = map(lambda x: x.attrib['href'].split('/')[5], html_item_list)
 
     async def scrape_item(item_id):
@@ -146,7 +152,3 @@ def scrape_character_by_id(lodestone_id):
     loop.run_until_complete(wait([
         scrape_item(item_id) for item_id in item_ids
     ]))
-
-    db.session.commit()
-
-    return char

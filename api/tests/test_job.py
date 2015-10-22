@@ -19,9 +19,9 @@ def test_job_repr(mina_whm):
 
 
 def test_job_contains_item():
-    from api.scrapers.character import scrape_character_by_id
+    from api.scrapers.character import scrape_character
     from api.constants import JOBS
-    mina = scrape_character_by_id('8774791')
+    mina = scrape_character('8774791')
     whm = mina.jobs.filter_by(job=JOBS.WHITEMAGE).first()
     circlet = next(filter(lambda i: i.name == 'Platinum Circlet of Healing', whm.items))
 

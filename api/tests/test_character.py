@@ -3,8 +3,8 @@ import pytest
 
 @pytest.fixture
 def mina(app):
-    from api.scrapers.character import scrape_character_by_id
-    return scrape_character_by_id('8774791')
+    from api.scrapers.character import scrape_character
+    return scrape_character('8774791')
 
 
 def test_scrape_character_by_id_basic_data(mina):

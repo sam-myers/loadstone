@@ -5,7 +5,7 @@ class Item(db.Model):
     """
     A weapon, armor, shield, accessory, or soul stone
 
-    Generated and added to DB by :func:`api.scrapers.item.scrape_item_by_id`.
+    Generated and added to DB by :func:`api.scrapers.item.scrape_item`.
     """
 
     id = db.Column(db.String(20), primary_key=True, unique=True)

@@ -3,8 +3,8 @@ import pytest
 
 @pytest.fixture
 def thyrus():
-    from api.scrapers.item import scrape_item_by_id
-    return scrape_item_by_id('d19447e548d')
+    from api.scrapers.item import scrape_item
+    return scrape_item('d19447e548d')
 
 
 def test_scrape_item_by_id(thyrus):
@@ -72,7 +72,7 @@ def test_character_illegal_lodestone_id(client):
 
 
 def test_item_repr():
-    from api.scrapers.item import scrape_item_by_id
+    from api.scrapers.item import scrape_item
 
-    item = scrape_item_by_id('9139260df17')
+    item = scrape_item('9139260df17')
     assert repr(item) == '<Item lodestone_id=9139260df17 name=Aegis Shield Zeta type=Shield ilvl=135>'

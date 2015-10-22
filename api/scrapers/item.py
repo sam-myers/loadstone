@@ -3,11 +3,11 @@ from api.models.item import Item
 from api.scrapers.context_managers import HTMLFromLoadstone
 
 
-def scrape_item_by_id(lodestone_id):
+def scrape_item(lodestone_id):
     """
     .. image:: ../images/item_lodestone_id.PNG
 
-    >>> thyrus = scrape_item_by_id('d19447e548d')
+    >>> thyrus = scrape_item('d19447e548d')
     >>> thyrus.name
     'Thyrus Zenith'
     >>> thyrus.item_level

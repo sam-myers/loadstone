@@ -4,7 +4,7 @@ from api import db
 class FreeCompany(db.Model):
     """
     Free Company which contains at least one :class:`api.models.Character` and its associated stats
-    Generated and added to DB by :func:`api.scrapers.free_company.scrape_free_company_by_id`.
+    Generated and added to DB by :func:`api.scrapers.free_company.scrape_free_company`.
     """
 
     id = db.Column(db.String(200), primary_key=True, unique=True)

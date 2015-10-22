@@ -1,7 +1,7 @@
 from api import app
-from api.scrapers.item import scrape_item_by_id
+from api.scrapers.item import scrape_item
 from api.scrapers.character import scrape_character
-from api.scrapers.free_company import scrape_free_company_by_id
+from api.scrapers.free_company import scrape_free_company
 from api.exceptions import InvalidRequest
 
 from flask.json import jsonify
@@ -27,7 +27,7 @@ def get_item(lodestone_id):
     if not re.match(r'^[0-9a-z]+$', lodestone_id):
         raise InvalidRequest('Illegal characters in requested ID')
 
-    return scrape_item_by_id(lodestone_id)
+    return scrape_item(lodestone_id)
 
 
 @app.route('/scrape/character/<string:lodestone_id>')
@@ -45,4 +45,4 @@ def get_free_company(lodestone_id):
     if not re.match(r'^[0-9]+$', lodestone_id):
         raise InvalidRequest('Illegal characters in requested ID')
 
-    return scrape_free_company_by_id(lodestone_id)
+    return scrape_free_company(lodestone_id)

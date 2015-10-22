@@ -6,7 +6,7 @@ import datetime
 import re
 
 
-def scrape_free_company_by_id(lodestone_id):
+def scrape_free_company(lodestone_id):
     url = 'http://na.finalfantasyxiv.com/lodestone/freecompany/{}/'.format(lodestone_id)
     with HTMLFromLoadstone(url) as tree:
 

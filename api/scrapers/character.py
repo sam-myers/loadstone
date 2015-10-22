@@ -3,8 +3,8 @@ from api.constants import JOB_IDS
 from api.models.character import Character
 from api.models.job import Job
 from api.scrapers.context_managers import HTMLFromLoadstone
-from api.scrapers.item import scrape_item_by_id
-from api.scrapers.free_company import scrape_free_company_by_id
+from api.scrapers.item import scrape_item
+from api.scrapers.free_company import scrape_free_company
 
 
 from asyncio import get_event_loop, set_event_loop, new_event_loop, wait
@@ -102,7 +102,7 @@ def scrape_character_basics(char, html):
 def scrape_character_free_company(char, html):
     char.free_company_id = \
         html.xpath('//dd[@class="txt_name"]/a[contains(@href, "")]')[0].attrib['href'].split('/')[3]
-    scrape_free_company_by_id(char.free_company_id)
+    scrape_free_company(char.free_company_id)
 
 
 def scrape_character_job(char, tree):
@@ -141,7 +141,7 @@ def scrape_character_items(job, html):
     item_ids = map(lambda x: x.attrib['href'].split('/')[5], html_item_list)
 
     async def scrape_item(item_id):
-        job.items.append(scrape_item_by_id(item_id))
+        job.items.append(scrape_item(item_id))
 
     try:
         loop = get_event_loop()

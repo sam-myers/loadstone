@@ -3,8 +3,8 @@ import pytest
 
 @pytest.fixture
 def zanarkand():
-    from api.scrapers.free_company import scrape_free_company_by_id
-    return scrape_free_company_by_id('9229142273877347770')
+    from api.scrapers.free_company import scrape_free_company
+    return scrape_free_company('9229142273877347770')
 
 
 def test_scrape_free_company_basic_info(zanarkand):

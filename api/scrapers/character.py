@@ -4,7 +4,6 @@ from api.models.character import Character
 from api.models.job import Job
 from api.scrapers.context_managers import HTMLFromLoadstone
 from api.scrapers.item import scrape_item
-from api.scrapers.free_company import scrape_free_company
 
 
 from asyncio import get_event_loop, set_event_loop, new_event_loop, wait
@@ -104,12 +103,13 @@ def scrape_character_free_company(char, html, skip_free_company_parse):
     char.free_company_id = \
         html.xpath('//dd[@class="txt_name"]/a[contains(@href, "")]')[0].attrib['href'].split('/')[3]
     if not skip_free_company_parse:
+        from api.scrapers.free_company import scrape_free_company
         scrape_free_company(char.free_company_id, basics_only=True)
 
 
 def scrape_character_job(char, tree):
     job_images = tree.xpath('//div[@id="class_info"]/div[@class="ic_class_wh24_box"]/img')
-    job_image_id = job_images[0].attrib['src'].split('?')[1]
+    job_image_id = job_images[0].attrib['src'].split('/')[-1]
     job_id = JOB_IDS[job_image_id]
 
     job = Job.query.filter_by(character_id=char.id, job=job_id).first()

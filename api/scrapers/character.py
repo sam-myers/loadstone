@@ -10,7 +10,7 @@ from api.scrapers.free_company import scrape_free_company
 from asyncio import get_event_loop, set_event_loop, new_event_loop, wait
 
 
-def scrape_character(lodestone_id):
+def scrape_character(lodestone_id, skip_free_company_parse=False):
     """
     .. image:: ../images/character_lodestone_id.PNG
 
@@ -19,6 +19,7 @@ def scrape_character(lodestone_id):
     'Zanarkand'
 
     :param lodestone_id: Numeric ID in the URL of the character's Lodestone page
+    :param skip_free_company_parse: [Optional] If free company known to be in DB, specify True
     :return: New / updated :class:`api.models.Character`
     :raise InvalidRequest: Character of given ID cannot be found
     """
@@ -30,7 +31,7 @@ def scrape_character(lodestone_id):
             char = Character(id=lodestone_id)
 
         scrape_character_basics(char, html)
-        scrape_character_free_company(char, html)
+        scrape_character_free_company(char, html, skip_free_company_parse)
         db.session.add(char)
 
         job = scrape_character_job(char, html)
@@ -99,10 +100,11 @@ def scrape_character_basics(char, html):
     return char
 
 
-def scrape_character_free_company(char, html):
+def scrape_character_free_company(char, html, skip_free_company_parse):
     char.free_company_id = \
         html.xpath('//dd[@class="txt_name"]/a[contains(@href, "")]')[0].attrib['href'].split('/')[3]
-    scrape_free_company(char.free_company_id, basics_only=True)
+    if not skip_free_company_parse:
+        scrape_free_company(char.free_company_id, basics_only=True)
 
 
 def scrape_character_job(char, tree):
